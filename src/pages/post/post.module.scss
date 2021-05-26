@@ -1,1 +1,94 @@
-// TODO
+.header {
+  img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+  }
+}
+
+.main {
+  margin: 4rem 0;
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .articleInfo {
+    display: flex;
+    align-items: center;
+
+    margin-top: 2rem;
+
+    span {
+      display: flex;
+      align-items: center;
+      margin-right: 1.5rem;
+
+      svg {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+        stroke-width: 0.14rem;
+      }
+    }
+  }
+}
+
+.content {
+  padding-bottom: 4rem;
+  text-align: justify;
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: start;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  img {
+    max-width: 100%;
+    border-radius: 1rem;
+  }
+
+  ul, ol {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  strong {
+    color: var(--highlight);
+  }
+}
+
+@media (max-width: 720px) {
+  .header img {
+    height: 200px;
+  }
+
+  .main {
+    margin: 2rem 0;
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .articleInfo {
+      margin-top: 1rem;
+      display: inline-block;
+
+      span {
+        margin-top: 1rem;
+        margin-right: 1.5rem;
+  
+        svg {
+          font-size: 1.25rem;
+          margin-right: 0.5rem;
+          stroke-width: 0.14rem;
+        }
+      }
+    }
+  }
+}

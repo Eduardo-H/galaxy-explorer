@@ -1,1 +1,57 @@
-// TODO
+.post {
+  a {
+    display: block;
+    margin-bottom: 3rem;
+    align-items: center;
+
+    strong {
+      color: var(--heading);
+      font-size: 1.75rem;
+      line-height: 2rem;
+      font-weight: bold;
+
+      transition: 0.2s;
+
+      &:hover {
+        filter: brightness(0.8);
+      }
+    }
+
+    p {
+      color: var(--body);
+      font-size: 1rem;
+      line-height: 1.25rem;
+
+      margin-top: 0.7rem;
+    }
+
+    .publicationDate, .author {
+      color: var(--info);
+
+      display: inline-flex;
+      margin-right: 1.5rem;
+      margin-top: 1.25rem;
+
+      svg {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+        stroke-width: 0.14rem;
+      }
+    }
+  }
+}
+
+.loadMore {
+  button {
+    color: var(--highlight);
+    background: transparent;
+    border: 0;
+    font-size: 1.15rem;
+
+    transition: filter 0.2s;
+
+    &:hover {
+      filter: brightness(0.8);
+    }
+  }
+}
