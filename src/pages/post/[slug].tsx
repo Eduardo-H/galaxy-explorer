@@ -1,4 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import Link from 'next/link';
+import Head from 'next/head';
 
 import { getPrismicClient } from '../../services/prismic';
 import Prismic from '@prismicio/client';
@@ -10,10 +12,16 @@ import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 import { useRouter } from 'next/router';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import { useEffect } from 'react';
 
+interface PreviewPost {
+  title: string;
+  slug: string;
+}
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -31,11 +39,31 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
+  prevPost: PreviewPost | null;
+  nextPost: PreviewPost | null;
 }
 
-export default function Post({post}: PostProps) {
+export default function Post({
+  post,
+  preview,
+  prevPost,
+  nextPost
+}: PostProps): JSX.Element {
   const router = useRouter();
   const readingTime = calculateReadingTime();
+
+  useEffect(() => {
+    let script = document.createElement("script");
+    let anchor = document.getElementById("inject-comments-for-uterances");
+    script.setAttribute("src", "https://utteranc.es/client.js");
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async", "true");
+    script.setAttribute("repo", "Eduardo-H/galaxy-explorer-comments");
+    script.setAttribute("issue-term", "pathname");
+    script.setAttribute( "theme", "github-dark");
+    anchor.appendChild(script);
+  }, []);
 
   function calculateReadingTime() {
     const words = post.data.content.map(content => {
@@ -64,8 +92,12 @@ export default function Post({post}: PostProps) {
           <p>Carregando...</p>
         ) : (
           <>
+            <Head>
+              <title>{post.data.title} | Galaxy Explorer</title>
+            </Head>
+
             <header className={styles.header}>
-                <img src={post.data.banner.url} alt={post.data.title} />
+              <img src={post.data.banner.url} alt={post.data.title} />
             </header>
             <main className={commonStyles.contentContainer}>
               <section className={styles.main}>
@@ -74,9 +106,7 @@ export default function Post({post}: PostProps) {
                   <span>
                     <FiCalendar />
                     <p>
-                      {format(
-                        new Date(post.first_publication_date), 'd MMM yyyy', { locale: ptBR }
-                      )}
+                      {post.first_publication_date}
                     </p>
                   </span>
                   <span>
@@ -88,6 +118,9 @@ export default function Post({post}: PostProps) {
                     <p>{readingTime} min</p>
                   </span>
                 </div>
+                {post.last_publication_date && (
+                  <p>{post.last_publication_date}</p>
+                )}
               </section>
 
               <article className={styles.content}>
@@ -104,6 +137,44 @@ export default function Post({post}: PostProps) {
                 ))}
               </article>
             </main>
+            
+            <footer className={`${commonStyles.contentContainer}  ${styles.footer}`}>
+              <hr className={styles.divider} />
+
+              <div className={styles.postControllers}>
+                  {prevPost && (
+                    <div className={styles.previousPost}>
+                      <Link href={`/post/${prevPost.slug}`}>
+                        <a>{prevPost.title}</a>
+                      </Link>
+                      <p>Post anterior</p>
+                    </div>
+                  )}
+                  
+                  {nextPost && (
+                    <div className={styles.nextPost}>
+                      <Link href={`/post/${nextPost.slug}`}>
+                        <a>{nextPost.title}</a>
+                      </Link>
+                      <p>Próximo post</p>
+                    </div>
+                  )}
+              </div>
+
+              <div id="inject-comments-for-uterances">
+
+              </div>
+
+              {
+                preview && (
+                  <aside className={commonStyles.exitPreview}>
+                    <Link href="/api/exit-preview">
+                      <a>Sair do modo Preview</a>
+                    </Link>
+                  </aside>
+                )
+              }
+            </footer>
           </>
         ) 
       }
@@ -135,13 +206,40 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 };
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getStaticProps: GetStaticProps = async ({
+  params, 
+  preview = false, 
+  previewData
+}) => {
   const prismic = getPrismicClient();
-  const { slug } = context.params;
-  const response = await prismic.getByUID('post', String(slug), {});
+  const { slug } = params;
+  const response = await prismic.getByUID('post', String(slug), {
+    ref: previewData?.ref ?? null
+  });
+
+  const prevPostResponse = (await prismic.query([
+    Prismic.predicates.at('document.type', 'post')
+  ], {
+    pageSize: 1,
+    after: response.id,
+    orderings: '[document.first_publication_date]'
+  })).results[0];
+
+  const nextPostResponse = (await prismic.query([
+    Prismic.predicates.at('document.type', 'post')
+  ], {
+    pageSize: 1,
+    after: response.id,
+    orderings: '[document.first_publication_date desc]'
+  })).results[0];
 
   const post = {
-    first_publication_date: response.first_publication_date,
+    first_publication_date: format(
+      new Date(response.first_publication_date), 'd MMM yyyy', { locale: ptBR }
+    ),
+    last_publication_date: response.last_publication_date && format(
+      new Date(response.last_publication_date), "'*editado em' d MMM yyyy, 'às' HH:mm", { locale: ptBR }
+    ),
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -159,7 +257,16 @@ export const getStaticProps: GetStaticProps = async context => {
 
   return {
     props: {
-      post
+      post,
+      preview,
+      prevPost: prevPostResponse ? {
+        title: prevPostResponse.data.title,
+        slug: prevPostResponse.uid
+      } : null,
+      nextPost: nextPostResponse ? {
+        title: nextPostResponse.data.title,
+        slug: nextPostResponse.uid
+      } : null
     }
   };
 };
