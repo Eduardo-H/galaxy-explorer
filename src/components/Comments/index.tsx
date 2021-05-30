@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 const addUtterancesScript = (
   parentElement: HTMLElement,
   repo: string,
-  label: string,
   issueTerm: string,
   theme: string,
   isIssueNumber: boolean
@@ -13,10 +12,6 @@ const addUtterancesScript = (
   script.setAttribute('crossorigin', 'anonymous');
   script.setAttribute('async', 'true');
   script.setAttribute('repo', repo);
-
-  if (label !== '') {
-    script.setAttribute('label', label);
-  }
 
   if (isIssueNumber) {
     script.setAttribute('issue-number', issueTerm);
@@ -30,10 +25,9 @@ const addUtterancesScript = (
 };
 
 export function Comments (): JSX.Element  {
-  const repo = 'Eduardo-H/galaxy-explorer';
+  const repo = 'Eduardo-H/galaxy-explorer-comments';
   const theme = 'github-dark';
   const issueTerm = 'pathname';
-  const label = 'Comments';
 
   useEffect(() => {
     const commentsBox = document.getElementById('commentsBox');
@@ -48,7 +42,7 @@ export function Comments (): JSX.Element  {
       utterances.remove();
     }
 
-    addUtterancesScript(commentsBox, repo, label, issueTerm, theme, false);
+    addUtterancesScript(commentsBox, repo, issueTerm, theme, false);
   });
 
   return <div id="commentsBox" />;
