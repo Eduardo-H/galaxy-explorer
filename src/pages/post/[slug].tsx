@@ -13,6 +13,7 @@ import styles from './post.module.scss';
 import { useRouter } from 'next/router';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import { useEffect } from 'react';
+import { Comments } from '../../components/Comments';
 
 interface PreviewPost {
   title: string;
@@ -52,18 +53,6 @@ export default function Post({
 }: PostProps): JSX.Element {
   const router = useRouter();
   const readingTime = calculateReadingTime();
-
-  useEffect(() => {
-    let script = document.createElement("script");
-    let anchor = document.getElementById("inject-comments-for-uterances");
-    script.setAttribute("src", "https://utteranc.es/client.js");
-    script.setAttribute("crossorigin","anonymous");
-    script.setAttribute("async", true);
-    script.setAttribute("repo", "Eduardo-H/galaxy-explorer-comments");
-    script.setAttribute("issue-term", "pathname");
-    script.setAttribute( "theme", "github-dark");
-    anchor.appendChild(script);
-  }, []);
 
   function calculateReadingTime() {
     const words = post.data.content.map(content => {
@@ -161,9 +150,7 @@ export default function Post({
                   )}
               </div>
 
-              <div id="inject-comments-for-uterances">
-
-              </div>
+              <Comments />
 
               {
                 preview && (
