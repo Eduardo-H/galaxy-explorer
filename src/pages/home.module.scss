@@ -42,6 +42,8 @@
 }
 
 .loadMore {
+  align-items: center;
+
   button {
     color: var(--highlight);
     background: transparent;
@@ -52,6 +54,20 @@
 
     &:hover {
       filter: brightness(0.8);
+    }
+  }
+
+  svg {
+    margin-left: 0.75rem;
+    animation: spin 1s infinite linear;
+  }
+
+  @keyframes spin {
+    from {
+      transform:rotate(0deg);
+    }
+    to {
+      transform:rotate(360deg);
     }
   }
 }

@@ -7,6 +7,7 @@ import Prismic from '@prismicio/client';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { FiCalendar, FiUser } from "react-icons/fi";
+import { AiOutlineLoading } from "react-icons/ai";
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
@@ -37,8 +38,11 @@ export default function Home({
 }: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
   const [nextPage, setNextPage] = useState(postsPagination.next_page);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   async function handleLoadButtonClick() {
+    setIsLoadingMore(true);
+
     const response = await fetch(nextPage)
       .then(response => response.json())
       .then(data => data);
@@ -55,9 +59,10 @@ export default function Home({
         }
       });
     });
-
+    
     setPosts([...posts, ...newPosts]);
     setNextPage(response.next_page);
+    setIsLoadingMore(false);
   }
 
   return (
@@ -95,7 +100,8 @@ export default function Home({
             nextPage && (
               <div className={styles.loadMore}>
                 <button onClick={handleLoadButtonClick}>
-                  Carregar mais posts
+                  Carregar mais posts 
+                  { isLoadingMore && <AiOutlineLoading color="#FF8957" />}
                 </button>
               </div>
             )
